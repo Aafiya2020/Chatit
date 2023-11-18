@@ -25,7 +25,7 @@ func Deserialise(res interface{}) []Document {
 				arrOfValues := v[i+1].([]interface{})
 				value := arrOfValues[len(arrOfValues)-1].(string)
 
-				// add _id in the response
+				// add sid in the response
 				doc := Document{
 					ID:      v[i].(string),
 					Payload: []byte(value),

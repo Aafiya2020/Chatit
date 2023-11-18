@@ -29,7 +29,7 @@ func StartHTTPServer() {
 	r.HandleFunc("/chat-history", chatHistoryHandler).Methods(http.MethodGet)
 	r.HandleFunc("/contact-list", contactListHandler).Methods(http.MethodGet)
 
-	// Use default options
+	// Use default option
 	handler := cors.Default().Handler(r)
 	http.ListenAndServe(":8080", handler)
 }

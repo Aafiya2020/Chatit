@@ -17,7 +17,7 @@ func InitialiseRedis() *redis.Client {
 		DB:       0,
 	})
 
-	// checking if redis is connected
+	// Checking if redis is connected or not
 	pong, err := conn.Ping(context.Background()).Result()
 	if err != nil {
 		log.Fatal("Redis Connection Failed",

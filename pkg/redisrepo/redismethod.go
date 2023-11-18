@@ -108,7 +108,7 @@ func CreateChat(c *model.Chat) (string, error) {
 
 	log.Println("chat successfully set", res)
 
-	// add contacts to both user's contact list
+	// Add contacts to both the user's contact list
 	err = UpdateContactList(c.From, c.To)
 	if err != nil {
 		log.Println("error while updating contact list of", c.From)
