@@ -8,8 +8,7 @@ function Landing() {
     <Container maxW="2xl" marginTop="3rem" centerContent>
       <Box padding="5" marginBlockEnd={5}>
         <Text fontSize="3xl" paddingBlockEnd={5}>
-          This is a simple chat application written in Reactjs powered by Chakra
-          component. It is using websocket for communication.
+          A simple chat application !!!
         </Text>
       </Box>
       <Box>

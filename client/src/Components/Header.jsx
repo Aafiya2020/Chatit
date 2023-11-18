@@ -10,7 +10,7 @@ function Header() {
       <Center>
         <Link to="/">
           <Heading size="2xl">
-            <ChatIcon></ChatIcon> Kayee...
+            <ChatIcon></ChatIcon> Chatit
           </Heading>
         </Link>
       </Center>
