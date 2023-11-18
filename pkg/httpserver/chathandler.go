@@ -8,13 +8,13 @@ import (
 
 	"gochatapp/pkg/redisrepo"
 )
-
+// userReq represents the structure of the JSON request for user-related operations.
 type userReq struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 	Client   string `json:"client"`
 }
-
+// response represents the structure of the JSON response for API calls.
 type response struct {
 	Status  bool        `json:"status"`
 	Message string      `json:"message"`
@@ -22,82 +22,96 @@ type response struct {
 	Total   int         `json:"total,omitempty"`
 }
 
+// registerHandler handles user registration requests.
 func registerHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
+	// Decode JSON request into userReq struct
 	u := &userReq{}
 	if err := json.NewDecoder(r.Body).Decode(u); err != nil {
 		http.Error(w, "error decoidng request object", http.StatusBadRequest)
 		return
 	}
 
+	// Process registration and send JSON response
 	res := register(u)
 	json.NewEncoder(w).Encode(res)
 }
 
+// loginHandler handles user login requests.
 func loginHandler(w http.ResponseWriter, r *http.Request) {
+	// Set response header
 	w.Header().Set("Content-Type", "application/json")
 
+	// Decode JSON request into userReq struct
 	u := &userReq{}
 	if err := json.NewDecoder(r.Body).Decode(u); err != nil {
-		http.Error(w, "error decoidng request object", http.StatusBadRequest)
+		http.Error(w, "error decoding request object", http.StatusBadRequest)
 		return
 	}
 
+	// Process login and send JSON response
 	res := login(u)
 	json.NewEncoder(w).Encode(res)
 }
 
+// verifyContactHandler handles contact verification requests.
 func verifyContactHandler(w http.ResponseWriter, r *http.Request) {
+	// Set response header
 	w.Header().Set("Content-Type", "application/json")
 
+	// Decode JSON request into userReq struct
 	u := &userReq{}
 	if err := json.NewDecoder(r.Body).Decode(u); err != nil {
-		http.Error(w, "error decoidng request object", http.StatusBadRequest)
+		http.Error(w, "error decoding request object", http.StatusBadRequest)
 		return
 	}
 
+	// Process contact verification and send JSON response
 	res := verifyContact(u.Username)
 	json.NewEncoder(w).Encode(res)
 }
 
+// chatHistoryHandler handles requests for retrieving chat history between two users.
 func chatHistoryHandler(w http.ResponseWriter, r *http.Request) {
+	// Set response header
 	w.Header().Set("Content-Type", "application/json")
 
-	// user1 user2
+	// Extract query parameters
 	u1 := r.URL.Query().Get("u1")
 	u2 := r.URL.Query().Get("u2")
-
-	// chat between timerange fromTS toTS
-	// where TS is timestamp
-	// 0 to positive infinity
 	fromTS, toTS := "0", "+inf"
 
+	// Extract additional parameters for chat history
 	if r.URL.Query().Get("from-ts") != "" && r.URL.Query().Get("to-ts") != "" {
 		fromTS = r.URL.Query().Get("from-ts")
 		toTS = r.URL.Query().Get("to-ts")
 	}
 
+	// Process chat history request and send JSON response
 	res := chatHistory(u1, u2, fromTS, toTS)
 	json.NewEncoder(w).Encode(res)
 }
 
+// contactListHandler handles requests for retrieving the contact list of a user.
 func contactListHandler(w http.ResponseWriter, r *http.Request) {
+	// Set response header
 	w.Header().Set("Content-Type", "application/json")
 
+	// Extract username from query parameters
 	u := r.URL.Query().Get("username")
 
+	// Process contact list request and send JSON response
 	res := contactList(u)
 	json.NewEncoder(w).Encode(res)
 }
 
+// register processes user registration.
 func register(u *userReq) *response {
-	// check if username in userset
-	// return error if exist
-	// create new user
-	// create response for error
+	// Create response structure
 	res := &response{Status: true}
 
+	// Check if the username already exists
 	status := redisrepo.IsUserExist(u.Username)
 	if status {
 		res.Status = false
@@ -105,6 +119,7 @@ func register(u *userReq) *response {
 		return res
 	}
 
+	// Register a new user and handle errors
 	err := redisrepo.RegisterNewUser(u.Username, u.Password)
 	if err != nil {
 		res.Status = false
@@ -115,11 +130,12 @@ func register(u *userReq) *response {
 	return res
 }
 
+// login processes user login.
 func login(u *userReq) *response {
-	// if invalid username and password return error
-	// if valid user create new session
+	// Create response structure
 	res := &response{Status: true}
 
+	// Check if the provided username and password are valid
 	err := redisrepo.IsUserAuthentic(u.Username, u.Password)
 	if err != nil {
 		res.Status = false
@@ -130,11 +146,12 @@ func login(u *userReq) *response {
 	return res
 }
 
+// verifyContact processes contact verification.
 func verifyContact(username string) *response {
-	// if invalid username and password return error
-	// if valid user create new session
+	// Create response structure
 	res := &response{Status: true}
 
+	// Check if the provided username is valid
 	status := redisrepo.IsUserExist(username)
 	if !status {
 		res.Status = false
@@ -144,18 +161,18 @@ func verifyContact(username string) *response {
 	return res
 }
 
+// chatHistory processes requests for retrieving chat history between two users.
 func chatHistory(username1, username2, fromTS, toTS string) *response {
-	// if invalid usernames return error
-	// if valid users fetch chats
+	// Create response structure
 	res := &response{}
 
-	fmt.Println(username1, username2)
-	// check if user exists
+	// Check if both usernames are valid
 	if !redisrepo.IsUserExist(username1) || !redisrepo.IsUserExist(username2) {
 		res.Message = "incorrect username"
 		return res
 	}
 
+	// Fetch chat history and handle errors
 	chats, err := redisrepo.FetchChatBetween(username1, username2, fromTS, toTS)
 	if err != nil {
 		log.Println("error in fetch chat between", err)
@@ -169,6 +186,7 @@ func chatHistory(username1, username2, fromTS, toTS string) *response {
 	return res
 }
 
+// contactList processes requests for retrieving the contact list of a user.
 func contactList(username string) *response {
 	// if invalid username return error
 	// if valid users fetch chats
