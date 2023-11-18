@@ -1,6 +1,6 @@
 # Chatit - Real-Time Chat Application
 
- ![Screenshot](screenshot.png)
+ ![chatit](chatit.png)
 
 Chatit is a real-time chat application that allows users to engage in instant messaging with others. It provides a seamless and interactive chat experience, making communication efficient and enjoyable.
 
